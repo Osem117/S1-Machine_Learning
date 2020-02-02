@@ -28,8 +28,8 @@ ball.penup()
 ball.goto(0, 100)  # Colocar la pelota un poco por encima del centro
 
 # Movimiento de la bola
-ball.dx = 2  # Velocidad de la bola en el eje X   quiza en win 0.03
-ball.dy = -2  # Velocidad en el eje Y
+ball.dx = 4  # Velocidad de la bola en el eje X   quiza en win 0.03
+ball.dy = -4  # Velocidad en el eje Y
 
 
 # Movimiento de la pala
@@ -71,6 +71,36 @@ def ball_bounce():
     if ball.dy < 0 and ball.ycor() <= -253 and (paddle.xcor()-60 <= ball.xcor() <= paddle.xcor()+60):
         ball.dy *= -1
 
+
+def step(self, action):
+
+    reward, done = 0, 0
+
+    if action == 0:  # Si accion 0, movemos la pala a la izquierda
+        paddle_left()
+        reward -= .1  # quitamos 0.1 de reward cuando se mueve la pala
+
+    if action == 2:
+        paddle_right()
+        reward -= .1
+
+    run_frame()  # funcion. Corre el juego un frame, la recompensa tambien se updatea
+
+    # Vector de estado
+    state = [paddle.xcor(), ball.xcor(), ball.ycor(), ball.dx, ball.dy]
+
+    return reward, state, done
+
+
+hit, miss = 0, 0
+# Puntuacion
+score = turtle.Turtle()
+score.speed(0)
+score.color('white')
+score.hideturtle()  # Ocultar el contorno del objeto
+score.goto(0, 250)
+score.penup()
+score.write("Hit: {} Missed: {}".format(hit, miss), align='center', font=('Courier', 24, 'normal'))
 
 while True:
     win.update()  # Mostramos la pantalla de forma contínua
