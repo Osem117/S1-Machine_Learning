@@ -8,14 +8,15 @@ from keras.layers import Dense
 import matplotlib.pyplot as plt
 from keras.optimizers import adam
 
+# Importamos el entorno
 env = Pala()
 np.random.seed(0)
 
-# COMENTAR
 
+# COMENTAR
 class DQN:
 
-    """ Implementation of deep q learning algorithm """
+    """ Implementación del algoritmo DQN """
 
     def __init__(self, action_space, state_space):
 

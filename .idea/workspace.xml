@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4cc9d129-b883-4a84-a460-07671fe99acd" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/rSettings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pongEnv.py" beforeDir="false" afterPath="$PROJECT_DIR$/pongEnv.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pongEnv2NoRunning.py" beforeDir="false" afterPath="$PROJECT_DIR$/pongEnv2NoRunning.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DQN_Paddle.py" beforeDir="false" afterPath="$PROJECT_DIR$/DQN_Paddle.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,12 +19,6 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="1060" />
-    <option name="y" value="18" />
-    <option name="width" value="1497" />
-    <option name="height" value="1361" />
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
