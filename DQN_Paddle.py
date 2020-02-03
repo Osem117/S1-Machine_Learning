@@ -1,4 +1,4 @@
-from pongEnv2NoRunning import Pala
+from pongEnv import Pala
 
 import random
 import numpy as np
@@ -11,6 +11,7 @@ from keras.optimizers import adam
 env = Pala()
 np.random.seed(0)
 
+# COMENTAR
 
 class DQN:
 

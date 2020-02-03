@@ -3,109 +3,125 @@ import turtle
 import time
 time.sleep(0.017)
 
-win = turtle.Screen()  # Creamos la ventana
-win.title('Paddle')  # Le pomenos titulo
-win.bgcolor('black')  # Color del fondo
-win.tracer(0)  # Para las animaciones hasta win.update()
-win.listen()  # Escuchar las teclas
-win.setup(600, 600)  # Seteamos ancho y alto
 
-# Paleta
-paddle = turtle.Turtle()  # Creamos un objeto turtle
-paddle.shape('square')  # Le damos forma rectangular
-paddle.speed(0)  # Le seteamos la velocidad (un pixel por frame(?) )
-paddle.shapesize(1, 5)  # Las dimensiones de la pala
-paddle.penup()  # Pen Up. No dibuja mientras se mueve (?)
-paddle.color('white')  # Color de la pala
-paddle.goto(0, -275)  # Colocar la pala abajo en el centro
+class Pala:
 
-# Bola
-ball = turtle.Turtle()  # Objeto turtle
-ball.speed(0)  # Velocidad de la pelota
-ball.shape('circle')  # Forma
-ball.color('red')  # color
-ball.penup()
-ball.goto(0, 100)  # Colocar la pelota un poco por encima del centro
+    def __init__(self):
+    
+        self.hit, self.miss = 0, 0
+        self.reward = 0
+        self.done = False
 
-# Movimiento de la bola
-ball.dx = 4  # Velocidad de la bola en el eje X   quiza en win 0.03
-ball.dy = -4  # Velocidad en el eje Y
+        # Fondo
+        self.win = turtle.Screen()  # Creamos la ventana
+        self.win.title('Paddle')  # Le pomenos titulo
+        self.win.bgcolor('black')  # Color del fondo
+        self.win.tracer(0)  # Para las animaciones hasta win.update()
+        self.win.listen()  # Escuchar las teclas
+        self.win.setup(600, 600)  # Seteamos ancho y alto
 
+        # Paleta
+        self.paddle = turtle.Turtle()  # Creamos un objeto turtle
+        self.paddle.shape('square')  # Le damos forma rectangular
+        self.paddle.speed(0)  # Le seteamos la velocidad (un pixel por frame(?) )
+        self.paddle.shapesize(1, 5)  # Las dimensiones de la pala
+        self.paddle.penup()  # Pen Up. No dibuja mientras se mueve (?)
+        self.paddle.color('white')  # Color de la pala
+        self.paddle.goto(0, -275)  # Colocar la pala abajo en el centro
 
-# Movimiento de la pala
-def paddle_right():
-    x = paddle.xcor()  # Obtener la posicion X de la pala
-    if x < 225:
-        paddle.goto(paddle.xcor() + 30, paddle.ycor())  # Teniendo en cuenta los limites de la pantalla
+        # Bola
+        self.ball = turtle.Turtle()  # Objeto turtle
+        self.ball.speed(0)  # Velocidad de la pelota
+        self.ball.shape('circle')  # Forma
+        self.ball.color('red')  # color
+        self.ball.penup()
+        self.ball.goto(0, 100)  # Colocar la pelota un poco por encima del centro
 
-def paddle_left():
-    x = paddle.xcor()
-    if x >= -225:
-        paddle.goto(paddle.xcor() - 30, paddle.ycor())
+        # Movimiento de la bola
+        self.ball.dx = 3  # Velocidad de la bola en el eje X   quiza en win 0.03
+        self.ball.dy = -3  # Velocidad en el eje Y
 
+        # Puntuacion
+        self.score = turtle.Turtle()
+        self.score.speed(0)
+        self.score.color('white')
+        self.score.hideturtle()  # Ocultar el contorno del objeto
+        self.score.goto(0, 250)
+        self.score.penup()
+        self.score.write("Hit: {} Missed: {}".format(self.hit, self.miss), align='center', font=('Courier', 24, 'normal'))
 
-# Controles de teclado
-win.onkey(paddle_right, 'Right')  # Llamar a la funcion cuando se pulse la flecha del teclado
-win.onkey(paddle_left, 'Left')  # Lo mismo, con la izquierda
+        # Controles de teclado
+        self.win.onkey(self.paddle_right, 'Right')  # Llamar a la funcion cuando se pulse la flecha del teclado
+        self.win.onkey(self.paddle_left, 'Left')  # Lo mismo, con la izquierda
 
+    # Movimiento de la pala
+    def paddle_right(self):
+        x = self.paddle.xcor()  # Obtener la posicion X de la pala
+        if x < 225:
+            self.paddle.setx(x+20)  # Previendo los limites de la pantalla
 
-def move_ball():
-    ball.goto(ball.xcor()+ball.dx, ball.ycor()+ball.dy)
+    def paddle_left(self):
+        x = self.paddle.xcor()
+        if x >= -225:
+            self.paddle.setx(x-20)
 
-    # Colisiones con las pareces
-    if ball.xcor() >= 280 or ball.xcor() <= -290:
-        ball.dx *= -1
+    # control de la ia  0-Left 1-nothing 2-right
+    def reset(self):
+        self.paddle.goto(0, -275)  # Al reiniciar el juego seteamos la pala en su pos inicial
+        self.ball.goto(0, 100)  # Lo mismo con la bola
+        return [self.paddle.xcor() * 0.01, self.ball.xcor() * 0.01, self.ball.ycor() * 0.01, self.ball.dx, self.ball.dy]
 
-    if ball.ycor() >= 270:
-        ball.dy *= -1
+    def step(self, action):
 
-    # Reiniciar la pelota si cae al fondo
-    if ball.ycor() <= -285:
-        ball.goto(0, 0)
-        ball.dy *= -1
+        self.reward = 0
+        self.done = 0
 
+        if action == 0:  # Si accion 0, movemos la pala a la izquierda
+            self.paddle_left()
+            self.reward -= .1  # quitamos 0.1 de reward cuando se mueve la pala
 
-# Colision con la pala
-def ball_bounce():
-    # si la pala y la pelota chocan cambiar la direccion de la pala
-    if ball.dy < 0 and ball.ycor() <= -253 and (paddle.xcor()-60 <= ball.xcor() <= paddle.xcor()+60):
-        ball.dy *= -1
+        if action == 2:
+            self.paddle_right()
+            self.reward -= .1
 
+        self.run_frame()  # funcion. Corre el juego un frame, la recompensa tambien se updatea
 
-def step(self, action):
+        # Vector de estado
+        state = [self.paddle.xcor()*0.01, self.ball.xcor()*0.01, self.ball.ycor()*0.01, self.ball.dx, self.ball.dy]
 
-    reward, done = 0, 0
+        return self.reward, state, self.done
 
-    if action == 0:  # Si accion 0, movemos la pala a la izquierda
-        paddle_left()
-        reward -= .1  # quitamos 0.1 de reward cuando se mueve la pala
+    def run_frame(self):
+        self.win.update()
 
-    if action == 2:
-        paddle_right()
-        reward -= .1
+        # Movimiento de la bola
 
-    run_frame()  # funcion. Corre el juego un frame, la recompensa tambien se updatea
+        self.ball.setx(self.ball.xcor() + self.ball.dx)
+        self.ball.sety(self.ball.ycor() + self.ball.dy)
 
-    # Vector de estado
-    state = [paddle.xcor(), ball.xcor(), ball.ycor(), ball.dx, ball.dy]
+        # Colision con la pared
 
-    return reward, state, done
+        if self.ball.xcor() > 290 or self.ball.xcor() < -290:
+            self.ball.dx *= -1
 
+        if self.ball.ycor() > 290:
+            self.ball.dy *= -1
 
-hit, miss = 0, 0
-# Puntuacion
-score = turtle.Turtle()
-score.speed(0)
-score.color('white')
-score.hideturtle()  # Ocultar el contorno del objeto
-score.goto(0, 250)
-score.penup()
-score.write("Hit: {} Missed: {}".format(hit, miss), align='center', font=('Courier', 24, 'normal'))
+        # Caida bola al suelo
 
-while True:
-    win.update()  # Mostramos la pantalla de forma contínua
-    move_ball()
-    ball_bounce()
-    time.sleep(0.017)  # windows
+        if self.ball.ycor() < -290:
+            self.ball.goto(0, 100)
+            self.miss += 1
+            self.score.clear()
+            self.score.write("Hit: {}   Missed: {}".format(self.hit, self.miss), align='center',font=('Courier', 24, 'normal'))
+            self.reward -= 3
+            self.done = True
 
+        # Colision con la pala
 
+        if abs(self.ball.ycor() + 250) < 2 and abs(self.paddle.xcor() - self.ball.xcor()) < 55:
+            self.ball.dy *= -1
+            self.hit += 1
+            self.score.clear()
+            self.score.write("Hit: {}   Missed: {}".format(self.hit, self.miss), align='center',font=('Courier', 24, 'normal'))
+            self.reward += 3
