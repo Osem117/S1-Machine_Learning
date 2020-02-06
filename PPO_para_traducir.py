@@ -33,7 +33,7 @@ def get_advantages(values, masks, rewards):
 # -----------------------------------------------------------------------
 
 
-# Print de la perdida de ppo (?)
+# Print de la perdida de ppo  (?)(¿) mirar bien esto que es en el video del m donwloaded
 def ppo_loss_print(oldpolicy_probs, advantages, rewards, values):
     def loss(y_true, y_pred):
         y_true = tf.Print(y_true, [y_true], 'y_true: ')
@@ -62,7 +62,7 @@ def ppo_loss_print(oldpolicy_probs, advantages, rewards, values):
 
     return loss
 
-
+# idem. Mirar bien que es y doc.
 def ppo_loss(oldpolicy_probs, advantages, rewards, values):
     def loss(y_true, y_pred):
         newpolicy_probs = y_pred
@@ -77,7 +77,7 @@ def ppo_loss(oldpolicy_probs, advantages, rewards, values):
 
     return loss
 
-
+# Aqui es donde se compila el modelo del actor. Aqui se hacen decisiones¿?¿?¿?
 # Image porque nuestro actor va a ser una imagen que viene del juego
 def get_model_actor_image(input_dims, output_dims):  # Actor
     state_input = Input(shape=input_dims)  # definir la forma de entrada de nuestra imagen
@@ -143,7 +143,7 @@ def get_model_actor_simple(input_dims, output_dims):
     # model.summary()
     return model
 
-
+# en el modelo del critico se realizan decisiones ¿?¿?¿??
 def get_model_critic_image(input_dims):  # Modelo del interprete
     state_input = Input(shape=input_dims)  # definir la forma de entrada de nuestra imagen
 

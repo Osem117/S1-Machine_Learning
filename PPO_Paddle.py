@@ -60,6 +60,7 @@ class PPO:
         adv = np.array(returns) - values[:-1]
         return returns, (adv - np.mean(adv)) / (np.std(adv) + 1e-10)
 
+    # 
     def ppo_loss(self, oldpolicy_probs, advantages, rewards, values):
         def loss(y_true, y_pred):
             newpolicy_probs = y_pred
