@@ -3,6 +3,7 @@ from pongEnv import Pala
 import random
 import numpy as np
 from keras import Sequential
+from keras.callbacks import TensorBoard
 from collections import deque
 from keras.layers import Dense
 import matplotlib.pyplot as plt
@@ -11,6 +12,7 @@ from keras.optimizers import adam
 # Importamos el entorno
 env = Pala()
 np.random.seed(0)
+tensor_board = TensorBoard(log_dir='./logs')  # Para crear logs
 
 
 # COMENTAR

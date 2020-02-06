@@ -18,6 +18,8 @@ from keras.applications.mobilenet_v2 import MobileNetV2
 
 env = Pala()
 np.random.seed(0)
+tensor_board = TensorBoard(log_dir='./logs')  # Para crear logs
+
 
 class PPO:
     """ Implementacion del algoritmo PPO"""
@@ -42,10 +44,10 @@ class PPO:
         model.add(Dense(64, input_shape=(self.state_space,), activation='relu'))
         model.add(Dense(64, activation='relu'))
         model.add(Dense(self.action_space, activation='linear'))
-        model.compile(loss='mse', optimizer=adam(lr=self.learning_rate))
+        model.compile(loss='mse', optimizer=adam(lr=self.learning_rate))  # Aqui va el custom
         return model
 
-    def get_advantages(values, masks, rewards):
+    def get_advantages(self, values, masks, rewards):
         returns = []
         gae = 0
         gamma = 0.99
