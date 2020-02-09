@@ -24,12 +24,12 @@ class DQN:
 
         self.action_space = action_space
         self.state_space = state_space
-        self.epsilon = 1
-        self.gamma = .95
+        self.gamma = .95  # Factor de descuento  default 0.95
+        self.epsilon = 0.5  # Nivel random del algoritmo 0 -> determinista  1 -> full exploratorio.  Default 1
+        self.epsilon_min = .01  # Nivel minimo de epsilon
+        self.epsilon_decay = .885  # Ratio de bajada de epsilon     default 0.995  no afecta mucho
         self.batch_size = 64
-        self.epsilon_min = .01
-        self.epsilon_decay = .995
-        self.learning_rate = 0.001
+        self.learning_rate = 0.001  # Ratio de aprendizaje
         self.memory = deque(maxlen=100000)
         self.model = self.build_model()
 
@@ -39,7 +39,8 @@ class DQN:
         model.add(Dense(64, input_shape=(self.state_space,), activation='relu'))
         model.add(Dense(64, activation='relu'))
         model.add(Dense(self.action_space, activation='linear'))
-        model.compile(loss='mse', optimizer=adam(lr=self.learning_rate))
+        # default, loss = mse     amsgrad -> AMSGradient variante
+        model.compile(loss='mse', optimizer=adam(lr=self.learning_rate, amsgrad=True))
         return model
 
     def remember(self, state, action, reward, next_state, done):
@@ -104,9 +105,19 @@ def train_dqn(episode):
 
 if __name__ == '__main__':
 
-    ep = 100
-    loss = train_dqn(ep)
-    plt.plot([i for i in range(ep)], loss)
+    n = 5
+    ep = 100  # 100
+    total_loss = [0]*ep
+    for j in range(n):
+        # ep = ep
+        loss = train_dqn(ep)
+        total_loss = [x + y for x, y in zip(total_loss, loss)]
+        # plt.plot([i for i in range(ep)], loss)
+        # plt.xlabel('episodes')
+        # plt.ylabel('reward')
+        # plt.show()
+    mean_loss = [x / n for x in total_loss]
+    plt.plot([i for i in range(ep)], mean_loss)
     plt.xlabel('episodes')
     plt.ylabel('reward')
     plt.show()

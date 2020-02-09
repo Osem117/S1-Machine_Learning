@@ -1,4 +1,7 @@
-import gfootball.env as football_env
+#import gfootball.env as football_env
+
+from pongEnv import Pala
+
 import numpy as np
 import tensorflow as tf
 
@@ -62,7 +65,7 @@ def ppo_loss_print(oldpolicy_probs, advantages, rewards, values):
 
     return loss
 
-# idem. Mirar bien que es y doc.
+# idem. Mirar bien que es y doc.  #-----------------------------------------------------------------------
 def ppo_loss(oldpolicy_probs, advantages, rewards, values):
     def loss(y_true, y_pred):
         newpolicy_probs = y_pred
@@ -76,6 +79,7 @@ def ppo_loss(oldpolicy_probs, advantages, rewards, values):
         return total_loss
 
     return loss
+# --------------------------------------------------------------------------------------------------------------
 
 # Aqui es donde se compila el modelo del actor. Aqui se hacen decisiones¿?¿?¿?
 # Image porque nuestro actor va a ser una imagen que viene del juego
@@ -221,21 +225,24 @@ def one_hot_encoding(probs):
 # si el input es una imagen o no
 image_based = False
 
-if image_based:
+# if image_based:
     # arg1 -> env_name: entorno en el que vamos a ejecutar. En este caso, porteria vacia como primera toma de contacto
     # arg2 -> representation: Tipo de observación para describir el estado de nuesto agente.
     #         Pixel: vision basada en un frame del juego
     # arg3 -> render:True, para renderizar el juego en nuestra pantalla (para poder verlo)
-    env = football_env.create_environment(env_name='academy_empty_goal', representation='pixels', render=True)
-else:
-    env = football_env.create_environment(env_name='academy_empty_goal', representation='simple115')
+env = Pala()  # .create_environment(env_name='Paddle', representation='pixels', render=True)
+# else:
+#    env = football_env.create_environment(env_name='academy_empty_goal', representation='simple115')
 
 state = env.reset()
 
-state_dims = env.observation_space.shape  # Dimension del estado. Puesto que es una imagen, es la resolución de la misma
+state_dims = (env.win.window_height(), env.win.window_width())
+#state_dims = env.observation_space.shape  # Dimension del estado. Puesto que es una imagen, es la resolución de la misma
 print('dim ->', state_dims)
 
-n_actions = env.action_space.n  # Numero de acciones disponibles (up, down, kick etc)
+# ---------------------------------------------------------------------------------------asdfasfasfasfasdfasfdasfd
+n_act = [0, 1, 2]  #OUTPUTDIMS
+n_actions = len(n_act)  # env.action_space.n  # Numero de acciones disponibles (up, down, kick etc)
 print('numActions ->', n_actions)
 
 dummy_n = np.zeros((1, 1, n_actions))

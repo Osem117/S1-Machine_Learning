@@ -3,75 +3,44 @@ from pongEnv import Pala
 import random
 import numpy as np
 from keras import Sequential
+from keras.callbacks import TensorBoard
 from collections import deque
 from keras.layers import Dense
 import matplotlib.pyplot as plt
 from keras.optimizers import adam
-import tensorflow as tf
-from keras.callbacks import TensorBoard
-from keras.layers import Input, Dense, Conv2D, MaxPooling2D, Flatten
-from keras.models import Model
-from keras.optimizers import Adam
-from keras import backend as K
-from keras.applications.mobilenet_v2 import MobileNetV2
 
-
+# Importamos el entorno
 env = Pala()
 np.random.seed(0)
 tensor_board = TensorBoard(log_dir='./logs')  # Para crear logs
 
 
-class PPO:
-    """ Implementacion del algoritmo PPO"""
+# COMENTAR
+class DQN:
+
+    """ Implementación del algoritmo DQN """
 
     def __init__(self, action_space, state_space):
-        self.epsilon = 1
-        self.gamma = .95
-        self.clipping_val = 0.2
-        self.critic_discount = 0.5
-        self.entropy_beta = 0.001
+
         self.action_space = action_space
         self.state_space = state_space
+        self.gamma = .95  # Factor de descuento
+        self.epsilon = 0.5  # Nivel random del algoritmo 0 -> determinista  1 -> full exploratorio.  Default 1
+        self.epsilon_min = .01  # Nivel minimo de epsilon
+        self.epsilon_decay = .885  # Ratio de bajada de epsilon     default 0.995  no afecta mucho
         self.batch_size = 64
-        self.epsilon_min = .01
-        self.epsilon_decay = .995
-        self.learning_rate = 0.001
+        self.learning_rate = 0.001  # Ratio de aprendizaje
         self.memory = deque(maxlen=100000)
         self.model = self.build_model()
 
     def build_model(self):
+
         model = Sequential()
         model.add(Dense(64, input_shape=(self.state_space,), activation='relu'))
         model.add(Dense(64, activation='relu'))
         model.add(Dense(self.action_space, activation='linear'))
-        model.compile(loss='mse', optimizer=adam(lr=self.learning_rate))  # Aqui va el custom
+        model.compile(loss='mse', optimizer=adam(lr=self.learning_rate))  # loss ->
         return model
-
-    def get_advantages(self, values, masks, rewards):
-        returns = []
-        gae = 0
-        gamma = 0.99
-        lmbda = 0.95
-        for i in reversed(range(len(rewards))):
-            delta = rewards[i] + gamma * values[i + 1] * masks[i] - values[i]
-            gae = delta + gamma * lmbda * masks[i] * gae
-            returns.insert(0, gae + values[i])
-
-        adv = np.array(returns) - values[:-1]
-        return returns, (adv - np.mean(adv)) / (np.std(adv) + 1e-10)
-
-    # 
-    def ppo_loss(self, oldpolicy_probs, advantages, rewards, values):
-        def loss(y_true, y_pred):
-            newpolicy_probs = y_pred
-            ratio = K.exp(K.log(newpolicy_probs + 1e-10) - K.log(oldpolicy_probs + 1e-10))
-            p1 = ratio * advantages
-            p2 = K.clip(ratio, min_value=1 - self.clipping_val, max_value=1 + self.clipping_val) * advantages
-            actor_loss = -K.mean(K.minimum(p1, p2))
-            critic_loss = K.mean(K.square(rewards - values))
-            total_loss = self.critic_discount * critic_loss + actor_loss - self.entropy_beta * K.mean(-(newpolicy_probs * K.log(newpolicy_probs + 1e-10)))
-            return total_loss
-        return loss
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
@@ -98,7 +67,8 @@ class PPO:
         states = np.squeeze(states)
         next_states = np.squeeze(next_states)
 
-        targets = rewards + self.gamma*(np.amax(self.model.predict_on_batch(next_states), axis=1))*(1-dones)
+        targets = rewards + self.gamma*(np.amax(self.model.predict_on_batch(next_states),
+                                                axis=1))*(1-dones)
         targets_full = self.model.predict_on_batch(states)
 
         ind = np.array([i for i in range(self.batch_size)])
@@ -109,10 +79,10 @@ class PPO:
             self.epsilon *= self.epsilon_decay
 
 
-def train_ppo(episode):
+def train_dqn(episode):
 
     loss = []
-    agent = PPO(3, 5)
+    agent = DQN(3, 5)
     for e in range(episode):
         state = env.reset()
         state = np.reshape(state, (1, 5))
@@ -128,6 +98,7 @@ def train_ppo(episode):
             agent.replay()
             if done:
                 print("episode: {}/{}, score: {}".format(e, episode, score))
+                break
         loss.append(score)
     return loss
 
@@ -135,8 +106,9 @@ def train_ppo(episode):
 if __name__ == '__main__':
 
     ep = 100
-    loss = train_ppo(ep)
+    loss = train_dqn(ep)
     plt.plot([i for i in range(ep)], loss)
     plt.xlabel('episodes')
     plt.ylabel('reward')
+    plt.title('')
     plt.show()
