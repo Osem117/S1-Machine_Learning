@@ -12,39 +12,38 @@ from keras.optimizers import adam
 # Importamos el entorno
 env = Pala()
 np.random.seed(0)
-tensor_board = TensorBoard(log_dir='./logs')  # Para crear logs
+tensor_board = TensorBoard(log_dir='./logs')
 
 
-# COMENTAR
 class DQN:
 
-    """ Implementación del algoritmo DQN """
+    """Implementación del algoritmo DQN"""
 
     def __init__(self, action_space, state_space):
 
         self.action_space = action_space
         self.state_space = state_space
-        self.gamma = .95  # Factor de descuento  default 0.95
+        self.batch_size = 64
+        self.memory = deque(maxlen=100000)
+        self.gamma = .75  # Factor de descuento  default 0.95
+        self.learning_rate = 0.001  # Ratio de aprendizaje
         self.epsilon = 0.5  # Nivel random del algoritmo 0 -> determinista  1 -> full exploratorio.  Default 1
         self.epsilon_min = .01  # Nivel minimo de epsilon
         self.epsilon_decay = .885  # Ratio de bajada de epsilon     default 0.995  no afecta mucho
-        self.batch_size = 64
-        self.learning_rate = 0.001  # Ratio de aprendizaje
-        self.memory = deque(maxlen=100000)
-        self.model = self.build_model()
+        self.model = self.create_model()
 
-    def build_model(self):
+    def memorize(self, state, action, reward, next_state, done):
+        self.memory.append((state, action, reward, next_state, done))
+
+    def create_model(self):
 
         model = Sequential()
         model.add(Dense(64, input_shape=(self.state_space,), activation='relu'))
         model.add(Dense(64, activation='relu'))
         model.add(Dense(self.action_space, activation='linear'))
-        # default, loss = mse     amsgrad -> AMSGradient variante
+        # default, loss = mse     amsgrad -> AMSGradient variante usando el gradiente
         model.compile(loss='mse', optimizer=adam(lr=self.learning_rate, amsgrad=True))
         return model
-
-    def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
 
@@ -79,7 +78,7 @@ class DQN:
             self.epsilon *= self.epsilon_decay
 
 
-def train_dqn(episode):
+def train(episode):
 
     loss = []
     agent = DQN(3, 5)
@@ -93,7 +92,7 @@ def train_dqn(episode):
             reward, next_state, done = env.step(action)
             score += reward
             next_state = np.reshape(next_state, (1, 5))
-            agent.remember(state, action, reward, next_state, done)
+            agent.memorize(state, action, reward, next_state, done)
             state = next_state
             agent.replay()
             if done:
@@ -105,18 +104,13 @@ def train_dqn(episode):
 
 if __name__ == '__main__':
 
-    n = 5
-    ep = 100  # 100
+    n = 5  # Numero de experimentos
+    ep = 100  # Numero de episodios (partidas)
     total_loss = [0]*ep
     for j in range(n):
-        # ep = ep
-        loss = train_dqn(ep)
+        loss = train(ep)
         total_loss = [x + y for x, y in zip(total_loss, loss)]
-        # plt.plot([i for i in range(ep)], loss)
-        # plt.xlabel('episodes')
-        # plt.ylabel('reward')
-        # plt.show()
-    mean_loss = [x / n for x in total_loss]
+    mean_loss = [x / n for x in total_loss]  # Media del total loss
     plt.plot([i for i in range(ep)], mean_loss)
     plt.xlabel('episodes')
     plt.ylabel('reward')
