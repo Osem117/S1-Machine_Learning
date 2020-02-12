@@ -17,19 +17,17 @@ tensor_board = TensorBoard(log_dir='./logs')
 
 class DQN:
 
-    """Implementación del algoritmo DQN"""
-
     def __init__(self, action_space, state_space):
 
         self.action_space = action_space
         self.state_space = state_space
         self.batch_size = 64
         self.memory = deque(maxlen=100000)
-        self.gamma = .75  # Factor de descuento  default 0.95
+        self.gamma = .75  # Factor de descuento  default 0.95     test 2  0.75
         self.learning_rate = 0.001  # Ratio de aprendizaje
-        self.epsilon = 0.5  # Nivel random del algoritmo 0 -> determinista  1 -> full exploratorio.  Default 1
+        self.epsilon = 0.5  # Nivel random   0 -> determinista  1 -> exploratorio.  Default 1    test 0.5
         self.epsilon_min = .01  # Nivel minimo de epsilon
-        self.epsilon_decay = .885  # Ratio de bajada de epsilon     default 0.995  no afecta mucho
+        self.epsilon_decay = .885  # Ratio bajada epsilon     default 0.995   test 0.885
         self.model = self.create_model()
 
     def memorize(self, state, action, reward, next_state, done):

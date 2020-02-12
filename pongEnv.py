@@ -80,11 +80,11 @@ class Pala:
 
         if action == 0:  # Si accion 0, movemos la pala a la izquierda
             self.pl()  # Usar el metodo implementado para ello
-            self.reward -= .1  # quitamos 0.1 de reward cuando se mueve la pala
+            self.reward -= 0.1  # menos 0.1 reward movimiento pala
 
         if action == 2:
             self.pr()  # Usar el metodo implementado para ello
-            self.reward -= .1  # quitamos 0.1 de reward cuando se mueve la pala
+            self.reward -= 0.1  # menos 0.1 reward movimiento pala
 
         self.frame()  # funcion. Corre el juego un frame, la recompensa tambien se updatea
 
