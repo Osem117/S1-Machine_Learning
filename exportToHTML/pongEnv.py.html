@@ -1,0 +1,153 @@
+<html>
+<head>
+<title>pongEnv.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cc7832;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #6897bb;}
+.s3 { color: #808080;}
+.s4 { color: #6a8759;}
+.ln { color: #606366; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+pongEnv.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">import </span><span class="s1">turtle</span>
+
+<span class="s0">import </span><span class="s1">time</span>
+time.sleep(<span class="s2">0.017</span><span class="s1">)</span>
+
+
+<span class="s0">class </span><span class="s1">Pala:</span>
+
+    <span class="s0">def </span><span class="s1">__init__(self):</span>
+    
+        self.hit<span class="s0">, </span><span class="s1">self.miss = </span><span class="s2">0</span><span class="s0">, </span><span class="s2">0</span>
+        <span class="s1">self.reward = </span><span class="s2">0</span>
+        <span class="s1">self.done = </span><span class="s0">False</span>
+
+        <span class="s3"># Fondo</span>
+        <span class="s1">self.win = turtle.Screen()  </span><span class="s3"># Creamos la ventana</span>
+        <span class="s1">self.win.title(</span><span class="s4">'Paddle'</span><span class="s1">)  </span><span class="s3"># Le pomenos titulo</span>
+        <span class="s1">self.win.bgcolor(</span><span class="s4">'black'</span><span class="s1">)  </span><span class="s3"># Color del fondo</span>
+        <span class="s1">self.win.tracer(</span><span class="s2">0</span><span class="s1">)  </span><span class="s3"># Para las animaciones hasta win.update()</span>
+        <span class="s1">self.win.listen()  </span><span class="s3"># Escuchar las teclas</span>
+        <span class="s1">self.win.setup(</span><span class="s2">600</span><span class="s0">, </span><span class="s2">600</span><span class="s1">)  </span><span class="s3"># Seteamos ancho y alto</span>
+
+        # Paleta
+        <span class="s1">self.paddle = turtle.Turtle()  </span><span class="s3"># Creamos un objeto turtle</span>
+        <span class="s1">self.paddle.shape(</span><span class="s4">'square'</span><span class="s1">)  </span><span class="s3"># Le damos forma rectangular</span>
+        <span class="s1">self.paddle.speed(</span><span class="s2">0</span><span class="s1">)  </span><span class="s3"># Le seteamos la velocidad (un pixel por frame)</span>
+        <span class="s1">self.paddle.shapesize(</span><span class="s2">1</span><span class="s0">, </span><span class="s2">5</span><span class="s1">)  </span><span class="s3"># Las dimensiones de la pala</span>
+        <span class="s1">self.paddle.penup()  </span><span class="s3"># Pen Up. No dibuja mientras se mueve</span>
+        <span class="s1">self.paddle.color(</span><span class="s4">'white'</span><span class="s1">)  </span><span class="s3"># Color de la pala</span>
+        <span class="s1">self.paddle.goto(</span><span class="s2">0</span><span class="s0">, </span><span class="s1">-</span><span class="s2">275</span><span class="s1">)  </span><span class="s3"># Colocar la pala abajo en el centro</span>
+
+        # Bola
+        <span class="s1">self.ball = turtle.Turtle()  </span><span class="s3"># Objeto turtle</span>
+        <span class="s1">self.ball.speed(</span><span class="s2">0</span><span class="s1">)  </span><span class="s3"># Velocidad de la pelota</span>
+        <span class="s1">self.ball.shape(</span><span class="s4">'circle'</span><span class="s1">)  </span><span class="s3"># Forma</span>
+        <span class="s1">self.ball.color(</span><span class="s4">'red'</span><span class="s1">)  </span><span class="s3"># color</span>
+        <span class="s1">self.ball.penup()</span>
+        self.ball.goto(<span class="s2">0</span><span class="s0">, </span><span class="s2">100</span><span class="s1">)  </span><span class="s3"># Colocar la pelota un poco por encima del centro</span>
+
+        # Movimiento de la bola
+        <span class="s1">self.ball.dx = </span><span class="s2">3  </span><span class="s3"># Velocidad de la bola en el eje X  win 0.03</span>
+        <span class="s1">self.ball.dy = -</span><span class="s2">3  </span><span class="s3"># Velocidad en el eje Y</span>
+
+        # Puntuacion
+        <span class="s1">self.score = turtle.Turtle()</span>
+        self.score.speed(<span class="s2">0</span><span class="s1">)</span>
+        self.score.color(<span class="s4">'white'</span><span class="s1">)</span>
+        self.score.hideturtle()  <span class="s3"># Ocultar el contorno del objeto</span>
+        <span class="s1">self.score.goto(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">250</span><span class="s1">)</span>
+        self.score.penup()
+        self.score.write(<span class="s4">&quot;Hit: {} Missed: {}&quot;</span><span class="s1">.format(self.hit</span><span class="s0">, </span><span class="s1">self.miss)</span><span class="s0">, </span>
+                         <span class="s1">align=</span><span class="s4">'center'</span><span class="s0">, </span><span class="s1">font=(</span><span class="s4">'Courier'</span><span class="s0">, </span><span class="s2">24</span><span class="s0">, </span><span class="s4">'normal'</span><span class="s1">))</span>
+
+        <span class="s3"># Controles de teclado</span>
+        <span class="s1">self.win.onkey(self.pr</span><span class="s0">, </span><span class="s4">'Right'</span><span class="s1">)  </span><span class="s3"># Llamar a la funcion cuando se pulse la flecha del teclado</span>
+        <span class="s1">self.win.onkey(self.pl</span><span class="s0">, </span><span class="s4">'Left'</span><span class="s1">)  </span><span class="s3"># Lo mismo, con la izquierda</span>
+
+    # Movimiento de la pala
+    <span class="s0">def </span><span class="s1">pr(self):</span>
+        x = self.paddle.xcor()  <span class="s3"># Obtener la posicion X de la pala</span>
+        <span class="s0">if </span><span class="s1">x &lt; </span><span class="s2">225</span><span class="s1">:  </span><span class="s3"># Si pala no toca lateral derecho</span>
+            <span class="s1">self.paddle.setx(x+</span><span class="s2">20</span><span class="s1">)  </span><span class="s3"># Previendo los limites de la pantalla movemos la pala</span>
+
+    <span class="s0">def </span><span class="s1">pl(self):</span>
+        x = self.paddle.xcor()
+        <span class="s0">if </span><span class="s1">x &gt;= -</span><span class="s2">225</span><span class="s1">:  </span><span class="s3"># Lateral izdo</span>
+            <span class="s1">self.paddle.setx(x-</span><span class="s2">20</span><span class="s1">)  </span><span class="s3"># Moder pala izda</span>
+
+    # control de la ia  0-Left 1-nothing 2-right
+    <span class="s0">def </span><span class="s1">reset(self):</span>
+        self.paddle.goto(<span class="s2">0</span><span class="s0">, </span><span class="s1">-</span><span class="s2">275</span><span class="s1">)  </span><span class="s3"># Al reiniciar el juego seteamos la pala en su pos inicial</span>
+        <span class="s1">self.ball.goto(</span><span class="s2">0</span><span class="s0">, </span><span class="s2">100</span><span class="s1">)  </span><span class="s3"># Lo mismo con la bola</span>
+        # Devolvemos posiciones de pala y bola ademas de la direccion de la misma
+        <span class="s0">return </span><span class="s1">[self.paddle.xcor() * </span><span class="s2">0.01</span><span class="s0">, </span><span class="s1">self.ball.xcor() * </span><span class="s2">0.01</span><span class="s0">, </span><span class="s1">self.ball.ycor() * </span><span class="s2">0.01</span><span class="s0">, </span><span class="s1">self.ball.dx</span><span class="s0">, </span><span class="s1">self.ball.dy]</span>
+
+    <span class="s0">def </span><span class="s1">step(self</span><span class="s0">, </span><span class="s1">action):</span>
+
+        self.reward = <span class="s2">0</span>
+        <span class="s1">self.done = </span><span class="s2">0</span>
+
+        <span class="s0">if </span><span class="s1">action == </span><span class="s2">0</span><span class="s1">:  </span><span class="s3"># Si accion 0, movemos la pala a la izquierda</span>
+            <span class="s1">self.pl()  </span><span class="s3"># Usar el metodo implementado para ello</span>
+            <span class="s1">self.reward -= </span><span class="s2">.1  </span><span class="s3"># quitamos 0.1 de reward cuando se mueve la pala</span>
+
+        <span class="s0">if </span><span class="s1">action == </span><span class="s2">2</span><span class="s1">:</span>
+            self.pr()  <span class="s3"># Usar el metodo implementado para ello</span>
+            <span class="s1">self.reward -= </span><span class="s2">.1  </span><span class="s3"># quitamos 0.1 de reward cuando se mueve la pala</span>
+
+        <span class="s1">self.frame()  </span><span class="s3"># funcion. Corre el juego un frame, la recompensa tambien se updatea</span>
+
+        # Vector de estado
+        <span class="s1">state = [self.paddle.xcor()*</span><span class="s2">0.01</span><span class="s0">, </span><span class="s1">self.ball.xcor()*</span><span class="s2">0.01</span><span class="s0">, </span><span class="s1">self.ball.ycor()*</span><span class="s2">0.01</span><span class="s0">, </span><span class="s1">self.ball.dx</span><span class="s0">, </span><span class="s1">self.ball.dy]</span>
+
+        <span class="s0">return </span><span class="s1">self.reward</span><span class="s0">, </span><span class="s1">state</span><span class="s0">, </span><span class="s1">self.done</span>
+
+    <span class="s0">def </span><span class="s1">frame(self):  </span><span class="s3"># Establecemos tod0 lo que ocurre durante un frame</span>
+        <span class="s1">self.win.update()</span>
+
+        <span class="s3"># Movimiento de la bola</span>
+
+        <span class="s1">self.ball.setx(self.ball.xcor() + self.ball.dx)</span>
+        self.ball.sety(self.ball.ycor() + self.ball.dy)
+
+        <span class="s3"># Colision con la pared</span>
+
+        <span class="s0">if </span><span class="s1">self.ball.xcor() &gt; </span><span class="s2">290 </span><span class="s0">or </span><span class="s1">self.ball.xcor() &lt; -</span><span class="s2">290</span><span class="s1">:</span>
+            self.ball.dx *= -<span class="s2">1  </span><span class="s3"># Cambiamos la direccion de la bola si choca con las paredes</span>
+
+        <span class="s0">if </span><span class="s1">self.ball.ycor() &gt; </span><span class="s2">290</span><span class="s1">:</span>
+            self.ball.dy *= -<span class="s2">1  </span><span class="s3"># Cambiamos direccion de la bola si choca con techo</span>
+
+        # Caida bola al suelo
+
+        <span class="s0">if </span><span class="s1">self.ball.ycor() &lt; -</span><span class="s2">290</span><span class="s1">:</span>
+            self.ball.goto(<span class="s2">0</span><span class="s0">, </span><span class="s2">100</span><span class="s1">)  </span><span class="s3"># Reset la posicion</span>
+            <span class="s1">self.miss += </span><span class="s2">1  </span><span class="s3"># Sumamos uno al conteo miss</span>
+            <span class="s1">self.score.clear()</span>
+            self.score.write(<span class="s4">&quot;Hit: {}   Missed: {}&quot;</span><span class="s1">.format(self.hit</span><span class="s0">, </span><span class="s1">self.miss)</span><span class="s0">, </span>
+                             <span class="s1">align=</span><span class="s4">'center'</span><span class="s0">,</span><span class="s1">font=(</span><span class="s4">'Courier'</span><span class="s0">, </span><span class="s2">24</span><span class="s0">, </span><span class="s4">'normal'</span><span class="s1">))</span>
+            self.reward -= <span class="s2">3  </span><span class="s3"># Quitamos 3 puntos de recompensa</span>
+            <span class="s1">self.done = </span><span class="s0">True  </span><span class="s3"># Juego terminado</span>
+
+        # Colision con la pala
+
+        <span class="s0">if </span><span class="s1">abs(self.ball.ycor() + </span><span class="s2">250</span><span class="s1">) &lt; </span><span class="s2">2 </span><span class="s0">and </span><span class="s1">abs(self.paddle.xcor() - self.ball.xcor()) &lt; </span><span class="s2">55</span><span class="s1">:</span>
+            self.ball.dy *= -<span class="s2">1  </span><span class="s3"># Cambiamos direccion de la bola</span>
+            <span class="s1">self.hit += </span><span class="s2">1  </span><span class="s3"># Sumamos 1 al conteo hit</span>
+            <span class="s1">self.score.clear()</span>
+            self.score.write(<span class="s4">&quot;Hit: {}   Missed: {}&quot;</span><span class="s1">.format(self.hit</span><span class="s0">, </span><span class="s1">self.miss)</span><span class="s0">, </span>
+                             <span class="s1">align=</span><span class="s4">'center'</span><span class="s0">,</span><span class="s1">font=(</span><span class="s4">'Courier'</span><span class="s0">, </span><span class="s2">24</span><span class="s0">, </span><span class="s4">'normal'</span><span class="s1">))</span>
+            self.reward += <span class="s2">3  </span><span class="s3"># Sumamos 3 de recompensa</span>
+</pre>
+</body>
+</html>
